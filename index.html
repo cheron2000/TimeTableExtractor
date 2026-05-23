@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Extractor - Smart Schedule Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Timetable Extractor</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-view="upload">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                    <button class="nav-btn" data-view="view">
+                        <i class="fas fa-eye"></i> View Schedule
+                    </button>
+                    <button class="nav-btn" data-view="about">
+                        <i class="fas fa-info-circle"></i> About
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Upload View -->
+            <section id="upload-view" class="view active">
+                <div class="hero">
+                    <h1 class="hero-title">Extract Schedules from Excel</h1>
+                    <p class="hero-subtitle">Upload your master timetable once, query teacher, division, and batch schedules instantly</p>
+                </div>
+
+                <div class="upload-card">
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Drop your Excel file here</h3>
+                        <p>or click to browse</p>
+                        <input type="file" id="file-input" accept=".xlsx,.xlsm" hidden>
+                        <button class="btn btn-primary" id="browse-btn">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                        <p class="upload-hint">Supports .xlsx and .xlsm files</p>
+                    </div>
+
+                    <div class="upload-progress" id="upload-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <p class="progress-text" id="progress-text">Uploading...</p>
+                    </div>
+
+                    <div class="upload-success" id="upload-success" style="display: none;">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Upload Successful!</h3>
+                        <div class="file-info" id="file-info"></div>
+                        <button class="btn btn-primary" id="view-schedule-btn">
+                            <i class="fas fa-calendar-check"></i> View Schedules
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Lightning Fast</h3>
+                        <p>Parse complex Excel files in seconds with intelligent detection</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Smart Parsing</h3>
+                        <p>Automatically detects teachers, divisions, rooms, and lab sessions</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Color Coded</h3>
+                        <p>Beautiful visual schedules with automatic lab merging</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View Schedule Section -->
+            <section id="view-schedule" class="view">
+                <div class="schedule-header">
+                    <h1>View Schedules</h1>
+                    <div class="session-info" id="session-info" style="display: none;">
+                        <span class="session-badge">
+                            <i class="fas fa-database"></i> Session Active
+                        </span>
+                        <button class="btn btn-secondary btn-sm" id="clear-session-btn">
+                            <i class="fas fa-trash"></i> Clear Session
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <label for="view-type">View Type</label>
+                        <select id="view-type" class="select-input">
+                            <option value="">Select view type...</option>
+                            <option value="teacher">Teacher Schedule</option>
+                            <option value="division">Division Schedule</option>
+                            <option value="batch">Batch Schedule</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" id="teacher-select-group" style="display: none;">
+                        <label for="teacher-select">Select Teacher</label>
+                        <select id="teacher-select" class="select-input">
+                            <option value="">Choose a teacher...</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" id="division-select-group" style="display: none;">
+                        <label for="division-select">Select Division</label>
+                        <select id="division-select" class="select-input">
+                            <option value="">Choose a division...</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" id="batch-select-group" style="display: none;">
+                        <label for="batch-division-select">Division</label>
+                        <select id="batch-division-select" class="select-input">
+                            <option value="">Choose division...</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" id="batch-name-group" style="display: none;">
+                        <label for="batch-name-select">Batch</label>
+                        <select id="batch-name-select" class="select-input">
+                            <option value="">Choose batch...</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" id="load-schedule-btn" disabled>
+                        <i class="fas fa-sync-alt"></i> Load Schedule
+                    </button>
+                </div>
+
+                <!-- Timetable Display -->
+                <div class="timetable-container" id="timetable-container" style="display: none;">
+                    <div class="timetable-header">
+                        <h2 id="timetable-title">Schedule</h2>
+                        <div class="timetable-actions">
+                            <button class="btn btn-secondary btn-sm" id="export-btn">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="print-btn">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <span class="legend-item">
+                            <span class="legend-color lecture"></span> Lecture
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-color lab"></span> Lab
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-color break"></span> Break
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-color free"></span> Free
+                        </span>
+                    </div>
+
+                    <div class="timetable-scroll">
+                        <table class="timetable" id="timetable">
+                            <!-- Generated dynamically -->
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3>No Schedule Loaded</h3>
+                    <p>Upload a timetable file and select filters to view schedules</p>
+                    <button class="btn btn-primary" id="goto-upload-btn">
+                        <i class="fas fa-upload"></i> Upload Timetable
+                    </button>
+                </div>
+            </section>
+
+            <!-- About View -->
+            <section id="about-view" class="view">
+                <div class="about-content">
+                    <h1>About Timetable Extractor</h1>
+                    <p class="lead">A powerful tool to extract and visualize academic schedules from Excel files.</p>
+
+                    <div class="about-section">
+                        <h2><i class="fas fa-rocket"></i> Features</h2>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Smart Excel parsing with merged cell support</li>
+                            <li><i class="fas fa-check"></i> Automatic teacher, division, and room detection</li>
+                            <li><i class="fas fa-check"></i> Lab session merging (2hr/3hr blocks)</li>
+                            <li><i class="fas fa-check"></i> Color-coded visual schedules</li>
+                            <li><i class="fas fa-check"></i> Export and print functionality</li>
+                            <li><i class="fas fa-check"></i> Session-based caching for fast queries</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-section">
+                        <h2><i class="fas fa-cog"></i> How It Works</h2>
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Upload</h3>
+                                    <p>Upload your master Excel timetable (.xlsx or .xlsm)</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Parse</h3>
+                                    <p>Our engine extracts teachers, divisions, rooms, and schedules</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Query</h3>
+                                    <p>View individual schedules by teacher, division, or batch</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h3>Export</h3>
+                                    <p>Print or export schedules for distribution</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-section">
+                        <h2><i class="fas fa-code"></i> Technology Stack</h2>
+                        <div class="tech-stack">
+                            <span class="tech-badge">FastAPI</span>
+                            <span class="tech-badge">Python 3.11+</span>
+                            <span class="tech-badge">OpenPyXL</span>
+                            <span class="tech-badge">Pydantic</span>
+                            <span class="tech-badge">Vanilla JS</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
